@@ -4,11 +4,20 @@ import com.fate.core.annotation.FateRequestMapping;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * @ProjectName: fate-core
@@ -25,6 +34,7 @@ public class FateRequestMapperHandlerMapping extends RequestMappingHandlerMappin
 
     private int order = 5;
 
+
     @Override
     protected boolean isHandler(Class<?> beanType) {
         return AnnotatedElementUtils.hasAnnotation(beanType, FateRequestMapping.class);
@@ -32,33 +42,27 @@ public class FateRequestMapperHandlerMapping extends RequestMappingHandlerMappin
 
     @Override
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-        // 检查class 存不存在 FateRequestMapping 这个注解
-        FateRequestMapping hp_clz = AnnotatedElementUtils.findMergedAnnotation(handlerType, FateRequestMapping.class);
-        // 检查method 存不存在 FateRequestMapping 这个注解
-        FateRequestMapping hp_method = AnnotatedElementUtils.findMergedAnnotation(method, FateRequestMapping.class);
-        if (hp_clz != null && hp_method != null) {
-            String clz_path = hp_clz.value() == null ? "" : hp_clz.value().trim();
-            String method_path = hp_method.value() == null ? "" : hp_method.value().trim();
-            RequestMethod[] rm = hp_method.method();
-            String url;
-            if (clz_path.equals("/") && method_path.startsWith("/")) {
-                url = method_path;
-            } else {
-                url = clz_path + method_path;
-            }
-
-            logger.info("registerHandler,url=" + url + ";method=" + method);
-            RequestMappingInfo.Builder builder = RequestMappingInfo.paths(new String[]{url});
-            if (rm != null && rm.length > 0) {
-                builder.methods(rm);
-            } else {
-                builder.methods(new RequestMethod[]{RequestMethod.GET, RequestMethod.POST});
-            }
-
-            return builder.build();
-        } else {
+        FateRequestMapping mfrm = method.getAnnotation(FateRequestMapping.class);
+        FateRequestMapping cfrm = handlerType.getAnnotation(FateRequestMapping.class);
+        if (mfrm == null){
             return null;
         }
+        String cfrmPath = cfrm.value();
+        String mfrmPath = mfrm.value();
+        RequestMethod[] requestMethods = mfrm.method();
+        String path = null;
+        if (cfrmPath.equals("/") && mfrmPath.startsWith("/")) {
+            path = mfrmPath;
+        } else {
+            path = cfrmPath + mfrmPath;
+        }
+        logger.info("加载了mapping= "+path+"method= "+method);
+        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(path);
+        if (requestMethods != null && requestMethods.length>0){
+            builder.methods(requestMethods);
+        }else {
+            builder.methods(RequestMethod.POST,RequestMethod.GET);
+        }
+        return builder.build();
     }
-
 }
