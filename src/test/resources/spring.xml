@@ -9,4 +9,5 @@
 
 	<bean id="fateRequestMapperHandlerMapping" class="com.fate.core.framework.web.FateRequestMapperHandlerMapping"/>
 	<bean id="fateRequestMappingHandlerAdapter" class="com.fate.core.framework.web.FateRequestMappingHandlerAdapter"/>
+	<bean id="FateHandlerExceptionResolver" class="com.fate.core.framework.web.exception.FateHandlerExceptionResolver"/>
 </beans>

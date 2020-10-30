@@ -99,12 +99,14 @@ public class ResultResponse<T> implements Serializable {
     }
 
     public static enum ResponseType {
-        TYPE_SUCCESS("success"),
-        TYPE_INFO("info"),
-        TYPE_WARNING("warning"),
-        TYPE_ERROR("error");
+        TYPE_SUCCESS("success",SUCCESS),
+        TYPE_INFO("info",SUCCESS),
+        TYPE_WARNING("warning",SUCCESS),
+        TYPE_ERROR("error",FAIL);
 
         private String type;
+
+        private int defaultCode;
 
         private ResponseType(String type) {
             this.type = type;
@@ -112,6 +114,15 @@ public class ResultResponse<T> implements Serializable {
 
         public String getType() {
             return this.type;
+        }
+
+        ResponseType(String type, int defaultCode) {
+            this.type = type;
+            this.defaultCode = defaultCode;
+        }
+
+        public int getDefaultCode() {
+            return defaultCode;
         }
     }
 }

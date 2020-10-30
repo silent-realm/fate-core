@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fate.core.annotation.FateRequestMapping;
 import com.fate.core.exception.BaseException;
 import com.fate.core.response.ResultResponse;
+import com.fate.core.utils.ModelAndViewUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -72,7 +73,7 @@ public class FateRequestMappingHandlerAdapter extends RequestMappingHandlerAdapt
 
         if (methodType.POST.name().equalsIgnoreCase(httpMethod)) {
             if (methodParameters != null && methodParameters.length > 1) {
-                setModelAndView(-1, "error",
+                ModelAndViewUtil.setModelAndView(-1, "error",
                         "post请求只允许有一个参数，且参数需要是DTO", null);
             }
             String jsonStr = getJSONStringFromRequest(request);
@@ -101,7 +102,7 @@ public class FateRequestMappingHandlerAdapter extends RequestMappingHandlerAdapt
      */
     public ModelAndView doInvoke(Object bean, Method method, Object[] args) throws IllegalAccessException, InvocationTargetException {
         Object invoke = method.invoke(bean, args);
-        log.info("===========方法返回值：", JSONObject.toJSONString(invoke));
+        log.info("===========方法返回值：{}", JSONObject.toJSONString(invoke));
         return dealResponse(invoke);
     }
 
@@ -114,11 +115,10 @@ public class FateRequestMappingHandlerAdapter extends RequestMappingHandlerAdapt
     private ModelAndView dealResponse(Object invoke) {
         if (invoke instanceof ResultResponse) {
             ResultResponse resultResponse = (ResultResponse) invoke;
-            return setModelAndView(resultResponse.getCode(), resultResponse.getType(),
-                    resultResponse.getMessage(), resultResponse.getData());
+            return ModelAndViewUtil.setModelAndViewJson(resultResponse);
         }
-        return setModelAndView(-1, "error",
-                "返回值非法", null);
+        return ModelAndViewUtil.setModelAndView(-1, "error",
+                "返回值非法,返回值必须使用ResultResponse对象返回", null);
     }
 
     /**
@@ -160,14 +160,5 @@ public class FateRequestMappingHandlerAdapter extends RequestMappingHandlerAdapt
             throw new BaseException("解析前端request入参异常,post请求后端入参只能用DTO");
         }
 
-    }
-
-    private ModelAndView setModelAndView(int code, String type, String message, Object data) {
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("code", code);
-        mav.addObject("type", type);
-        mav.addObject("message", message);
-        mav.addObject("data", data);
-        return mav;
     }
 }

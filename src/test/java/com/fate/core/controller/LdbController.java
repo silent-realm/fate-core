@@ -2,6 +2,7 @@ package com.fate.core.controller;
 
 import com.fate.core.annotation.FateRequestMapping;
 import com.fate.core.dto.LdbDTO;
+import com.fate.core.exception.BaseException;
 import com.fate.core.response.ResultResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ public class LdbController {
 //    @RequestMapping("/ldb1")
     @FateRequestMapping("/ldb1")
     public ResultResponse ldb1(String age,String name,int aaa) {
-        return ResultResponse.info(0,"测试通过","name="+name+",age="+age+",aaa="+aaa);
+//        return ResultResponse.info(0,"测试通过","name="+name+",age="+age+",aaa="+aaa);
+        throw new BaseException("111111111");
     }
 }

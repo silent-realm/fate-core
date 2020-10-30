@@ -2,6 +2,7 @@ package com.fate.core.annotation;
 
 import jdk.nashorn.internal.ir.annotations.Reference;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,6 +22,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Mapping
+@Component
 public @interface FateRequestMapping {
 
     String name() default "";
